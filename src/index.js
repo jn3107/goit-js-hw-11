@@ -74,6 +74,8 @@ const renderGallery = (images) => {
 
 const handleFormSubmit = async (event) => {
   event.preventDefault();
+  galleryContainer.innerHTML = '';
+  // console.log('Hello');
   try {
   currentQuery = event.target.elements.searchQuery.value.trim();
 
@@ -89,8 +91,9 @@ const handleFormSubmit = async (event) => {
 
     if (data && data.hits.length > 0) {
     renderGallery(data.hits);
-    if (data.hits.length < perPage) {
+    if (currentPage * perPage >= data.totalHits) {
       loadMoreBtn.style.display = 'none';
+      Notiflix.Notify.failure("We're sorry, but you've reached the end of search results.");
     } else {
       loadMoreBtn.style.display = 'block';
     }
@@ -111,12 +114,19 @@ const handleLoadMoreClick = async () => {
  
   const data = await fetchData(currentQuery, currentPage);
 
-  if (data && data.hits.length > 0) {
-    renderGallery(data.hits);
-  } else {
+  if (currentPage * perPage >= data.totalHits) {
     loadMoreBtn.style.display = 'none';
-    Notiflix.Notify.warning("We're sorry, but you've reached the end of search results.");
-  }
+     Notiflix.Notify.failure("We're sorry, but you've reached the end of search results.");
+  } else {
+    loadMoreBtn.style.display = 'block';
+    }
+    
+    if (data && data.hits.length > 0) {
+      renderGallery(data.hits);
+    } else {
+      loadMoreBtn.style.display = 'none';
+      Notiflix.Notify.warning("We're sorry, but you've reached the end of search results.");
+    }
 
   loadMoreBtn.disabled = false;
 
